@@ -1,0 +1,34 @@
+///
+/// Eventually by HTML5 UP
+/// html5up.net | @ajlkn
+/// Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+///
+
+/* Button */
+input[type="submit"],
+input[type="reset"],
+input[type="button"],
+button,
+.button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+input[type="submit"],
+input[type="reset"],
+input[type="button"],
+button,
+.button {
+    @include vendor('appearance', 'none');
+    @include vendor('transition', (
+        'background-color #{_duration(transition)} ease-in-out',
+        'color #{_duration(transition)} ease-in-out',
+        'opacity #{_duration(transition)} ease-in-out'
+    ));
+    background: #0074d9;
+    color: #ffffff;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+}

@@ -1,0 +1,159 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Upload Page</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="assets/css/main.css">
+    <style>
+        form {
+            padding: 20px;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .file-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .custom-file-input {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: #fff;
+            cursor: pointer;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .custom-file-input:hover {
+            background-color: #0056b3;
+        }
+        input[type="button"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1em;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        input[type="button"]:hover {
+            background-color: #45a049;
+        }
+        #status {
+            margin-top: 10px;
+            color: #555;
+            font-size: 0.9em;
+            text-align: center;
+        }
+        .status-message {
+            font-size: 14px;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+        }
+        .status-message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status-message.loading {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        #fileName {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #555;
+        }
+    </style>
+</head>
+<body class="is-preload">
+
+    <!-- Header -->
+    <header id="header">
+        <h1>파일을 업로드 해주세요.</h1>
+        <p>업로드 할 서류를 선택해주세요.</p>
+    </header>
+
+    <!-- Upload Form -->
+    <form id="upload-form">
+        <label for="fileInput" class="custom-file-input">
+            파일선택
+            <input type="file" id="fileInput" name="myFile" accept=".pdf,.jpg,.png" hidden>
+        </label>
+        <p id="fileName">파일이 선택되지 않았습니다.</p>
+        <input type="button" value="업로드" onclick="uploadFile()">
+    </form>
+    <div id="status"></div>
+    <div id="statusMessage" class="status-message"></div>
+
+    <!-- Footer -->
+    <footer id="footer">
+        <ul class="icons">
+        </ul>
+    </footer>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const fileNameDisplay = document.getElementById('fileName');
+        const statusMessage = document.getElementById('statusMessage');
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                fileNameDisplay.textContent = `선택된 파일: ${fileInput.files[0].name}`;
+            } else {
+                fileNameDisplay.textContent = '파일이 선택되지 않았습니다.';
+            }
+        });
+
+        function uploadFile() {
+            const file = fileInput.files[0];
+
+            if (!file) {
+                statusMessage.textContent = '파일을 선택하세요.';
+                statusMessage.className = 'status-message error';
+                statusMessage.style.display = 'block';
+                return;
+            }
+
+            statusMessage.textContent = '업로드 중입니다...';
+            statusMessage.className = 'status-message loading';
+            statusMessage.style.display = 'block';
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const base64Data = e.target.result;
+
+                google.script.run
+                    .withSuccessHandler((message) => {
+                        statusMessage.textContent = message;
+                        statusMessage.className = 'status-message success';
+                    })
+                    .withFailureHandler((error) => {
+                        statusMessage.textContent = `업로드 실패: ${error.message}`;
+                        statusMessage.className = 'status-message error';
+                    })
+                    .uploadFile(base64Data, file.name);
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>
